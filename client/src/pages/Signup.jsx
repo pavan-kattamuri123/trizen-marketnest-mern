@@ -23,7 +23,7 @@ const Signup = () => {
       await signup(name, email, password, role);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to sign up');
+      setError(err.response?.data?.message || err.message || 'Failed to sign up. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
