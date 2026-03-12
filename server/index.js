@@ -15,14 +15,19 @@ const app = express();
 
 // Middlewares
 const allowedOrigins = [
-  'http://localhost:5173',
-  process.env.CLIENT_URL,
+  /^http:\/\/localhost:\d+$/,             // any localhost port
+  /^https:\/\/.*\.vercel\.app$/,          // any vercel.app subdomain (prod + previews)
+  process.env.CLIENT_URL,                 // explicit CLIENT_URL override
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, postman)
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.some(pattern =>
+      typeof pattern === 'string' ? pattern === origin : pattern.test(origin)
+    );
+    if (isAllowed) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
